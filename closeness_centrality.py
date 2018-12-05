@@ -7,11 +7,13 @@ Created on Tue Oct 10 15:14:38 2017
 
 from utilities import *
 
+
+
 def dag_closeness_centrality(graph,centrality_type, normalised = False,future_past="future"):
     
       """
-      centrality_type : shortest path (fsp)
-                        longest path (flp)
+      centrality_type : shortest path (sp)
+                        longest path (lp)
                         harmonic shortest path (hsp)
                         harmonic longest path (hlp)
       normalised:
@@ -28,9 +30,23 @@ def dag_closeness_centrality(graph,centrality_type, normalised = False,future_pa
           
       if centrality_type == "sp":
           if normalised == True:
-            return nx.closeness_centrality(graph,normalised = True)
+              for n in graph:
+                  sp = [len(a) for a in nx.shortest_path(graph,target= n).values()]
+                  totsp = sum([a for a in sp if a != 0])
+                  if totsp >0 :
+                      centrality[n] = (len(sp)-1)/totsp
+                  else:
+                      centrality[n] = 0
+
           else:
-            return nx.closeness_centrality(graph,normalised = False)
+              for n in graph:
+                  sp = [len(a) for a in nx.shortest_path(graph,target= n).values()]
+                  totsp = sum([a for a in sp if a != 0])
+                  if totsp >0 :
+                      centrality[n] = (len(sp)-1)/totsp
+                  else:
+                      centrality[n] = 0
+          return centrality
       if centrality_type == "hsp":
           if normalised == True:
               for n in graph:
@@ -52,7 +68,7 @@ def dag_closeness_centrality(graph,centrality_type, normalised = False,future_pa
           distances = BFS(graph)
           if normalised == True:
               for n in graph:
-                  lp = distances[n]
+                  lp = list(distances[n].values())
                   totlp = sum(lp)
                   if totlp >0:
                       centrality[n] = (len(lp)-1)/totlp
@@ -60,7 +76,7 @@ def dag_closeness_centrality(graph,centrality_type, normalised = False,future_pa
                       centrality[n] = 0
           else:
               for n in graph:
-                  lp = distances[n]
+                  lp = list(distances[n].values())
                   totlp = sum(lp)
                   if totlp >0:
                       centrality[n] = 1/totlp
@@ -72,7 +88,7 @@ def dag_closeness_centrality(graph,centrality_type, normalised = False,future_pa
          distances = BFS(graph)
          if normalised == True:
              for n in graph:
-                 lp = distances[n]
+                 lp = list(distances[n].values())
                  inverse_totlp = sum([1/a for a in lp if a != 0])
                  if inverse_totlp >1 :
                      centrality[n] = inverse_totlp/(len(lp)-1)
@@ -80,7 +96,7 @@ def dag_closeness_centrality(graph,centrality_type, normalised = False,future_pa
                      centrality[n] = 0
          else:
             for n in graph:
-                lp = distances[n]
+                lp = list(distances[n].values())
                 inverse_totlp = sum([1/a for a in lp if a != 0])
                 centrality[n] = inverse_totlp
          return centrality
