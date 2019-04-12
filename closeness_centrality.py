@@ -9,7 +9,7 @@ from utilities import *
 
 
 
-def dag_closeness_centrality(graph,centrality_type, normalised = False,future_past="future"):
+def dag_closeness_centrality(graph,centrality_type, normalised = False,path_type="in"):
     
       """
       centrality_type : shortest path (sp)
@@ -25,32 +25,49 @@ def dag_closeness_centrality(graph,centrality_type, normalised = False,future_pa
       """
       
       centrality = {}
-      if future_past == "past":
-          graph = graph.reverse(copy=True)
-          
-      if centrality_type == "sp":
+      if path_type == "in" and  centrality_type == "sp":
           if normalised == True:
               for n in graph:
-                  sp = [len(a) for a in nx.shortest_path(graph,target= n).values()]
+                  sp = [len(a)-1 for a in nx.shortest_path(graph,target= n).values()]
                   totsp = sum([a for a in sp if a != 0])
                   if totsp >0 :
                       centrality[n] = (len(sp)-1)/totsp
                   else:
                       centrality[n] = 0
-
+          
           else:
               for n in graph:
-                  sp = [len(a) for a in nx.shortest_path(graph,target= n).values()]
+                  sp = [len(a)-1 for a in nx.shortest_path(graph,target= n).values()]
                   totsp = sum([a for a in sp if a != 0])
                   if totsp >0 :
                       centrality[n] = (len(sp)-1)/totsp
                   else:
                       centrality[n] = 0
           return centrality
-      if centrality_type == "hsp":
+      
+      if path_type == "out" and  centrality_type == "sp":
           if normalised == True:
               for n in graph:
-                  sp = [len(a) for a in nx.shortest_path(graph,target= n).values()]
+                  sp = [len(a)-1 for a in nx.shortest_path(graph,source= n).values()]
+                  totsp = sum([a for a in sp if a != 0])
+                  if totsp >0 :
+                      centrality[n] = (len(sp)-1)/totsp
+                  else:
+                      centrality[n] = 0
+          
+          else:
+              for n in graph:
+                  sp = [len(a)-1 for a in nx.shortest_path(graph,source= n).values()]
+                  totsp = sum([a for a in sp if a != 0])
+                  if totsp >0 :
+                      centrality[n] = (len(sp)-1)/totsp
+                  else:
+                      centrality[n] = 0
+          return centrality
+      if path_type == "in" and  centrality_type == "hsp":
+          if normalised == True:
+              for n in graph:
+                  sp = [len(a)-1 for a in nx.shortest_path(graph,target= n).values()]
                   inverse_totsp = sum([1/a for a in sp if a != 0])
                   if inverse_totsp >1 :
                       centrality[n] = inverse_totsp/(len(sp)-1)
@@ -59,10 +76,34 @@ def dag_closeness_centrality(graph,centrality_type, normalised = False,future_pa
 
           else:
               for n in graph:
-                  sp = [len(a) for a in nx.shortest_path(graph,target= n).values()]
+                  sp = [len(a)-1 for a in nx.shortest_path(graph,target= n).values()]
                   inverse_totsp = sum([1/a for a in sp if a != 0])
                   centrality[n] = inverse_totsp
+
           return centrality
+      
+      if path_type == "out" and  centrality_type == "hsp":
+          if normalised == True:
+              for n in graph:
+                  sp = [len(a)-1 for a in nx.shortest_path(graph,source= n).values()]
+                  inverse_totsp = sum([1/a for a in sp if a != 0])
+                  if inverse_totsp >1 :
+                      centrality[n] = inverse_totsp/(len(sp)-1)
+                  else:
+                      centrality[n] = 0
+
+          else:
+              for n in graph:
+                  sp = [len(a)-1 for a in nx.shortest_path(graph,source= n).values()]
+                  inverse_totsp = sum([1/a for a in sp if a != 0])
+                  centrality[n] = inverse_totsp
+
+          return centrality
+      
+      if path_type=="in":
+          
+          graph = graph.reverse(copy=True)
+          
      
       if centrality_type == "lp" :
           distances = BFS(graph)
