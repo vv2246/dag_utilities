@@ -5,6 +5,24 @@ Created on Tue Oct 10 15:14:38 2017
 @author: Vaiva
 """
 
+def trophic_level(A, eps=1.0e-8):
+    #calculate trophic levels, as average trophic levels of predator's prey+1
+    M= A/A.sum(axis=1)
+    N = M.shape[1]
+    v = np.random.rand(N,1)
+    last_v = np.random.rand(N, 1)
+    
+    while np.linalg.norm(v - last_v, 2) > eps:
+        last_v = v
+        mul =np.matmul(M, v)
+        for i in range(N):
+            val = mul[i] +1
+            if np.isnan(val)==True:
+                v[i] =last_v[i]
+            else:
+                v[i] = val 
+    return v
+
 def BFS(G):    
     bfs = defaultdict(dict)
     graph = list(reversed(list(nx.topological_sort(G))))
