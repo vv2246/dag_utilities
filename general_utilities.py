@@ -5,6 +5,38 @@ Created on Tue Oct 10 15:14:38 2017
 @author: Vaiva
 """
 
+def maximum_order_directed(G,direction,init_size):
+    nodes = list(G.nodes())
+    
+    random.shuffle(nodes)
+    max_order= nodes[:init_size]
+    nodes = nodes[init_size:]
+    while nodes:
+        subdegrees = {}
+        for n in nodes:
+            if direction=="in":
+                count = 0
+                for m in max_order:
+                    if G.has_edge(n,m)==True:
+                        count+=1
+                subdegrees[n]=count
+            elif direction=="out":
+                count = 0
+                for m in max_order:
+                    if G.has_edge(m,n)==True:
+                        count+=1
+                subdegrees[n]=count
+            else:
+                count = 0
+                for m in max_order:
+                    if G.has_edge(m,n)==True or G.has_edge(n,m)==True :
+                        count+=1
+                subdegrees[n]=count
+        max_deg_node = dict_largest_vals(subdegrees,1)[0]
+        max_order.append(max_deg_node)
+        nodes.pop(nodes.index(max_deg_node))
+    return max_order
+
 def trophic_level(A, eps=1.0e-8):
     #calculate trophic levels, as average trophic levels of predator's prey+1
     #A_ij = 1 indicates that there is an edge j->i
