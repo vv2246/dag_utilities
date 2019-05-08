@@ -7,6 +7,7 @@ Created on Tue Oct 10 15:14:38 2017
 
 def trophic_level(A, eps=1.0e-8):
     #calculate trophic levels, as average trophic levels of predator's prey+1
+    #A_ij = 1 indicates that there is an edge j->i
     M= A/A.sum(axis=1)
     N = M.shape[1]
     v = np.random.rand(N,1)
