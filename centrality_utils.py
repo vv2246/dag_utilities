@@ -22,7 +22,7 @@ def extend_shortest_paths(graph,source,target):
 
 def kdd_citation_dag(location = "C://Users/VV1615/OneDrive - Imperial College London/DAG/Data/hep-ph-citations.tar/hep-th-citations.txt"):
     """
-    Retrieve dag from the edge list
+    Retrieve hep-ph/hep-th citation dag from the edge list
     
     Returns
     -------
@@ -53,7 +53,7 @@ def kdd_citation_dag(location = "C://Users/VV1615/OneDrive - Imperial College Lo
  
 
 def reverse_and_enumerate_dag(graph):
-    
+    # flips edge direction in a dag and enumerates nodes
     node_ids = {}
 
     i = 0
@@ -74,6 +74,7 @@ def reverse_and_enumerate_dag(graph):
     
     
 def reverse_dag(graph):
+    # flips edge direction in a dag 
     reverse_dag = nx.DiGraph()
     edges = graph.edges()
     for i,j in edges:
@@ -81,16 +82,16 @@ def reverse_dag(graph):
         
     return reverse_dag
 
-                   
-################################################################################
-# find_interval
-# input: DAG - networkx DAG object
-#      start - start node of the interval
-#        end - end node fo the interval
-# return: interval_DAG - networkx DAG object of the interval between the start and end
-################################################################################
 def find_interval(DAG, start, end):
     # start is a higher integer than end
+                       
+    ################################################################################
+    # find_interval
+    # input: DAG - networkx DAG object
+    #      start - start node of the interval
+    #        end - end node fo the interval
+    # return: interval_DAG - networkx DAG object of the interval between the start and end
+    ################################################################################
     interval_nodes = interval_list(DAG, start, end)
     if not interval_nodes:
         return None
@@ -133,16 +134,18 @@ def lightcone_list(DAG, start, end, direction, already_visited=[]):
                     l += lightcone_list(DAG, start, node, direction, already_visited)
     return l
 
-################################################################################
-# interval_nodes_dict
-# input: D_in - dictionary of in edges
-#       D_out - dictionary of out edges
-#       start - start node
-#         end - end node
-# 
-# return - node_list - list of nodes in the interval
-################################################################################
 def interval_nodes_dict(D_in, D_out, start, end):
+    
+    
+    ################################################################################
+    # interval_nodes_dict
+    # input: D_in - dictionary of in edges
+    #       D_out - dictionary of out edges
+    #       start - start node
+    #         end - end node
+    # 
+    # return - node_list - list of nodes in the interval
+    ################################################################################
     node_list = []
     start_lightcone = lightcone_list_dict(D_in, start, end, 'forward', [])
     end_lightcone = lightcone_list_dict(D_out, start, end, 'backward', [])
@@ -209,8 +212,8 @@ def BFS(G):
                     bfs[i][pred] = val+1
     return bfs    
     
-# this doesn't require us to actually make a graph - just use an edge list
 def rewire(edge_list, N):
+    # this doesn't require us to actually make a graph - just use an edge list
     # we will do N successful rewirings
     # edge list is a list of 2-lists which all have [high_int, low_int] or reverse as per Vaiva's convention
     E = len(edge_list)
@@ -277,5 +280,139 @@ def cube_space_graph(N, D, p=1.0):
     
     
     
+
+def dag_closeness_centrality(graph,centrality_type, normalised = False,path_type="in"):
+    
+      """
+      centrality_type : shortest path (sp)
+                        longest path (lp)
+                        harmonic shortest path (hsp)
+                        harmonic longest path (hlp)
+      normalised:
+                        True
+                        False
+      future_past:
+                        future
+                        past
+      """
+      
+      centrality = {}
+      if path_type == "in" and  centrality_type == "sp":
+          if normalised == True:
+              for n in graph:
+                  sp = [len(a)-1 for a in nx.shortest_path(graph,target= n).values()]
+                  totsp = sum([a for a in sp if a != 0])
+                  if totsp >0 :
+                      centrality[n] = (len(sp)-1)/totsp
+                  else:
+                      centrality[n] = 0
+          
+          else:
+              for n in graph:
+                  sp = [len(a)-1 for a in nx.shortest_path(graph,target= n).values()]
+                  totsp = sum([a for a in sp if a != 0])
+                  if totsp >0 :
+                      centrality[n] = (len(sp)-1)/totsp
+                  else:
+                      centrality[n] = 0
+          return centrality
+      
+      if path_type == "out" and  centrality_type == "sp":
+          if normalised == True:
+              for n in graph:
+                  sp = [len(a)-1 for a in nx.shortest_path(graph,source= n).values()]
+                  totsp = sum([a for a in sp if a != 0])
+                  if totsp >0 :
+                      centrality[n] = (len(sp)-1)/totsp
+                  else:
+                      centrality[n] = 0
+          
+          else:
+              for n in graph:
+                  sp = [len(a)-1 for a in nx.shortest_path(graph,source= n).values()]
+                  totsp = sum([a for a in sp if a != 0])
+                  if totsp >0 :
+                      centrality[n] = (len(sp)-1)/totsp
+                  else:
+                      centrality[n] = 0
+          return centrality
+      if path_type == "in" and  centrality_type == "hsp":
+          if normalised == True:
+              for n in graph:
+                  sp = [len(a)-1 for a in nx.shortest_path(graph,target= n).values()]
+                  inverse_totsp = sum([1/a for a in sp if a != 0])
+                  if inverse_totsp >1 :
+                      centrality[n] = inverse_totsp/(len(sp)-1)
+                  else:
+                      centrality[n] = 0
+
+          else:
+              for n in graph:
+                  sp = [len(a)-1 for a in nx.shortest_path(graph,target= n).values()]
+                  inverse_totsp = sum([1/a for a in sp if a != 0])
+                  centrality[n] = inverse_totsp
+
+          return centrality
+      
+      if path_type == "out" and  centrality_type == "hsp":
+          if normalised == True:
+              for n in graph:
+                  sp = [len(a)-1 for a in nx.shortest_path(graph,source= n).values()]
+                  inverse_totsp = sum([1/a for a in sp if a != 0])
+                  if inverse_totsp >1 :
+                      centrality[n] = inverse_totsp/(len(sp)-1)
+                  else:
+                      centrality[n] = 0
+
+          else:
+              for n in graph:
+                  sp = [len(a)-1 for a in nx.shortest_path(graph,source= n).values()]
+                  inverse_totsp = sum([1/a for a in sp if a != 0])
+                  centrality[n] = inverse_totsp
+
+          return centrality
+      
+      if path_type=="in":
+          
+          graph = graph.reverse(copy=True)
+          
+     
+      if centrality_type == "lp" :
+          distances = BFS(graph)
+          if normalised == True:
+              for n in graph:
+                  lp = list(distances[n].values())
+                  totlp = sum(lp)
+                  if totlp >0:
+                      centrality[n] = (len(lp)-1)/totlp
+                  else:
+                      centrality[n] = 0
+          else:
+              for n in graph:
+                  lp = list(distances[n].values())
+                  totlp = sum(lp)
+                  if totlp >0:
+                      centrality[n] = 1/totlp
+                  else:
+                      centrality[n] = 0
+          return centrality      
+           
+      if centrality_type == "hlp":
+         distances = BFS(graph)
+         if normalised == True:
+             for n in graph:
+                 lp = list(distances[n].values())
+                 inverse_totlp = sum([1/a for a in lp if a != 0])
+                 if inverse_totlp >1 :
+                     centrality[n] = inverse_totlp/(len(lp)-1)
+                 else:
+                     centrality[n] = 0
+         else:
+            for n in graph:
+                lp = list(distances[n].values())
+                inverse_totlp = sum([1/a for a in lp if a != 0])
+                centrality[n] = inverse_totlp
+         return centrality
+
     
     
