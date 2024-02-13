@@ -191,6 +191,7 @@ def mean(dataPoints, precision=3):
  
 def tr(DAG, output=False):
     # for printing progress
+    # This code was taken from James Clough
     E = DAG.number_of_edges()
     i = 0
     print_limit = 10
